@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vocabulary Warehouse isolation preview</title>
+<style>
+body{margin:0;background:#111b34;color:#fff;font:1rem system-ui}
+main{padding:1.25rem}button{padding:.7rem;margin:.25rem}
+iframe{position:fixed;inset:0;width:100%;height:100%;border:0}
+</style>
+</head>
+<body>
+<main>
+<h1>Vocabulary Warehouse</h1>
+<p>Compare the preserved desktop and portrait engines with the same six English–Spanish pairs.</p>
+<button data-engine="game-multilingual-v2.html">Test Desktop</button>
+<button data-engine="mobile-preview.html">Test Mobile Portrait</button>
+<p role="status"></p>
+</main>
+<script>
+const pairs=[['cat','gato'],['dog','perro'],['mouse','ratón'],['bird','pájaro'],['fish','pez'],['rabbit','conejo']];
+const main=document.querySelector('main');
+const status=document.querySelector('[role=status]');
+let frame,timer,phase;
+function reset(message=''){
+ clearTimeout(timer);
+ frame?.remove();
+ frame=null;
+ main.hidden=false;
+ status.textContent=message;
+ window.speechSynthesis?.cancel();
+}
+for(const button of document.querySelectorAll('[data-engine]')){
+ button.addEventListener('click',()=>{
+  reset('Loading the test maze…');
+  frame=document.createElement('iframe');
+  frame.title=button.textContent;
+  frame.hidden=true;
+  frame.src='./baseline/'+button.dataset.engine;
+  phase='loading';
+  timer=setTimeout(()=>reset('The engine did not start. Try again.'),8000);
+  document.body.append(frame);
+ });
+}
+window.addEventListener('message',event=>{
+ if(!frame||event.origin!==location.origin||event.source!==frame.contentWindow)return;
+ const type=event.data?.type;
+ if(type==='BT_WAREHOUSE_READY'&&phase==='loading'){
+  phase='starting';
+  frame.contentWindow.postMessage({type:'BT_WAREHOUSE_START',set:{pairs,language:'es-ES'}},location.origin);
+ }
+ if(type==='BT_WAREHOUSE_STARTED'&&phase==='starting'){
+  clearTimeout(timer);
+  phase='playing';
+  main.hidden=true;
+  frame.hidden=false;
+  frame.focus({preventScroll:true});
+ }
+ if(type==='BT_WAREHOUSE_START_FAILED')reset('The engine rejected the test vocabulary.');
+ if(type==='BT_WAREHOUSE_MENU')reset();
+});
+</script>
+</body>
+</html>
