@@ -14,8 +14,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0}
 <main>
 <h1>Vocabulary Warehouse</h1>
 <p>Test the plug-and-socket game on desktop or portrait with the same six English–Spanish pairs.</p>
-<button data-engine="game-multilingual-v2.html">Test Desktop</button>
-<button data-engine="mobile-preview.html">Test Mobile Portrait</button>
+<button id="play">Play Warehouse</button>
 <p role="status"></p>
 </main>
 <script>
@@ -31,18 +30,17 @@ function reset(message=''){
  status.textContent=message;
  window.speechSynthesis?.cancel();
 }
-for(const button of document.querySelectorAll('[data-engine]')){
- button.addEventListener('click',()=>{
+document.querySelector('#play').addEventListener('click',()=>{
   reset('Loading Warehouse…');
   frame=document.createElement('iframe');
-  frame.title=button.textContent;
+  const portrait=matchMedia('(max-width: 760px) and (orientation: portrait)').matches;
+  frame.title='Warehouse gameplay';
   frame.hidden=true;
-  frame.src='./electric/'+button.dataset.engine;
+  frame.src='./electric/'+(portrait?'mobile-preview.html':'game-multilingual-v2.html');
   phase='loading';
   timer=setTimeout(()=>reset('The engine did not start. Try again.'),8000);
   document.body.append(frame);
- });
-}
+});
 window.addEventListener('message',event=>{
  if(!frame||event.origin!==location.origin||event.source!==frame.contentWindow)return;
  const type=event.data?.type;
