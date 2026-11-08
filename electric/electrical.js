@@ -2,7 +2,7 @@ const WarehouseElectrical = (() => {
   const sparkDuration = 520;
   function label(ctx, word, x, y, width) {
     ctx.fillStyle = '#fff5d1';
-    ctx.font = 'bold 17px monospace';
+    ctx.font = 'bold 25px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(word, x, y, width);
@@ -10,21 +10,35 @@ const WarehouseElectrical = (() => {
   function plug(ctx, x, y, word) {
     const rect = (dx, dy, w, h, color) => { ctx.fillStyle = color; ctx.fillRect(x+dx,y+dy,w,h); };
     rect(-17,-26,34,34,'#10101b');
-    rect(-13,-22,26,24,'#e5e8eb');
+    rect(-13,-22,26,24,'#bcc7d2');
+    rect(-13,-22,26,5,'#fff8e7');
+    rect(-13,-17,4,17,'#e6edf2');
+    rect(9,-17,4,17,'#738498');
+    rect(-8,-12,16,2,'#8194a7');
+    rect(-8,-7,16,2,'#8194a7');
     rect(-12,-34,7,13,'#ffcd52');
     rect(5,-34,7,13,'#ffcd52');
     rect(-4,2,8,12,'#10101b');
-    rect(-4,-17,8,14,'#d08b23');
-    rect(-64,15,128,23,'#111726');
-    label(ctx,word,x,y+27,118);
+    rect(-1,-15,5,5,'#ffe16c');
+    rect(-4,-10,8,4,'#ffca47');
+    rect(-4,-6,4,4,'#e79833');
+    rect(-70,15,140,28,'#111726');
+    label(ctx,word,x,y+29,130);
   }
   function station(ctx, z, word, lit, connected) {
     const x=z.x+69, y=z.y+36;
     const rect = (dx, dy, w, h, color) => { ctx.fillStyle = color; ctx.fillRect(x+dx,y+dy,w,h); };
     rect(-69,-36,138,72,'#0c1424');
-    rect(-66,-33,132,66,'#34465c');
+    rect(-66,-33,132,66,'#52667c');
+    rect(-63,-29,126,59,'#30455e');
+    rect(-63,-29,3,59,'#627990');
+    rect(58,-29,5,59,'#223245');
+    rect(-58,-25,4,4,'#9aafbd');
+    rect(54,-25,4,4,'#9aafbd');
     rect(-17,-6,34,25,'#e6ddd0');
     rect(-13,-3,26,18,'#bab2a7');
+    rect(-13,-3,26,3,'#fff4db');
+    rect(-13,12,26,3,'#817b77');
     rect(-9,1,5,8,'#171923');
     rect(4,1,5,8,'#171923');
     if(connected)rect(-13,1,26,14,'#e8edf0');
@@ -37,7 +51,11 @@ const WarehouseElectrical = (() => {
     rect(-11,-29,22,14,lit?'#ffce4e':'#78818a');
     rect(-7,-32,14,20,lit?'#ffe982':'#a3abb2');
     rect(-5,-12,10,5,'#4f5664');
-    label(ctx,word,x,y+25,124);
+    rect(-5,-11,10,2,'#8797a7');
+    rect(-7,-27,5,3,lit?'#fff9db':'#d0d7dd');
+    rect(2,-18,5,3,lit?'#d98932':'#758290');
+    rect(-65,18,130,30,'#101726');
+    label(ctx,word,x,y+33,122);
   }
   function cable(ctx, source, x, y, lane, progress) {
     const bend=source.y+lane;
@@ -71,11 +89,19 @@ const WarehouseElectrical = (() => {
       const at=s.connections.get(i);
       station(ctx,zones[s.positions[i]],pair[0],at!==undefined&&s.elapsed-at>=sparkDuration,at!==undefined);
     });
-    ctx.fillStyle='#111726';ctx.fillRect(source.x-69,source.y-39,138,78);
-    ctx.fillStyle='#91703c';ctx.fillRect(source.x-65,source.y-35,130,70);
-    ctx.fillStyle='#2d3442';ctx.fillRect(source.x-60,source.y-30,120,60);
-    label(ctx,'POWER BOX',source.x,source.y-19,110);
-    if(!s.carrying&&!s.powering&&word)plug(ctx,source.x,source.y+9,word);
+    ctx.fillStyle='#111726';ctx.fillRect(source.x-80,source.y-37,160,74);
+    ctx.fillStyle='#a27d42';ctx.fillRect(source.x-76,source.y-33,152,66);
+    ctx.fillStyle='#3d4857';ctx.fillRect(source.x-72,source.y-29,144,58);
+    ctx.fillStyle='#1c2738';ctx.fillRect(source.x-68,source.y-25,136,48);
+    label(ctx,'POWER BOX',source.x,source.y-10,124);
+    for(let i=0;i<4;i++){
+      ctx.fillStyle=i<s.connections.size?'#ffdd64':'#8193a1';
+      ctx.fillRect(source.x-25+i*14,source.y+12,7,5);
+    }
+    if(!s.carrying&&!s.powering&&word){
+      cable(ctx,source,source.x-101,source.y+39,39);
+      plug(ctx,source.x-101,source.y+25,word);
+    }
   }
   return {sparkDuration,plug,draw};
 })();
