@@ -1,0 +1,27 @@
+body:has(#game:not([hidden])) {background:#1d365e;overflow:hidden}
+body:has(#game:not([hidden])) .wrap > .muted {display:none}
+#game:not([hidden]) {gap:4px;align-items:stretch}
+#game .arcade-title {
+  margin:0;text-align:center;color:#7cdd63;text-shadow:3px 3px #101a33;
+  font:bold clamp(19px,4vw,34px) monospace
+}
+#game .arcade-actions {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+  width:min(100%,540px);margin:0 auto
+}
+#game .arcade-actions button {
+  min-height:44px;margin:0;padding:3px;border:3px solid #111b34;border-radius:0;
+  background:#6ad5e4;color:#111b34;box-shadow:inset -2px -2px #0003;
+  font:bold clamp(10px,2.7vw,14px) monospace
+}
+#game #pause {background:#f5d45b}
+#game #back {background:#ef729a}
+#game .arcade-actions button:focus-visible {outline:2px solid #fff;outline-offset:1px}
+#game .hud {color:#fff;text-align:center}
+#game .notice {text-align:center;color:#ffdf78}
+#game .stage {
+  flex:1 1 0;min-height:0;width:100%;max-width:none;margin:0;
+  border:3px solid #111b34;overflow:hidden
+}
+#game canvas {position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#game .arcade-extra button {border-radius:0}
