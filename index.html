@@ -13,7 +13,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0}
 <body>
 <main>
 <h1>Vocabulary Warehouse</h1>
-<p>Compare the preserved desktop and portrait engines with the same six English–Spanish pairs.</p>
+<p>Test the plug-and-socket game on desktop or portrait with the same six English–Spanish pairs.</p>
 <button data-engine="game-multilingual-v2.html">Test Desktop</button>
 <button data-engine="mobile-preview.html">Test Mobile Portrait</button>
 <p role="status"></p>
@@ -33,11 +33,11 @@ function reset(message=''){
 }
 for(const button of document.querySelectorAll('[data-engine]')){
  button.addEventListener('click',()=>{
-  reset('Loading the test maze…');
+  reset('Loading Warehouse…');
   frame=document.createElement('iframe');
   frame.title=button.textContent;
   frame.hidden=true;
-  frame.src='./baseline/'+button.dataset.engine;
+  frame.src='./electric/'+button.dataset.engine;
   phase='loading';
   timer=setTimeout(()=>reset('The engine did not start. Try again.'),8000);
   document.body.append(frame);
