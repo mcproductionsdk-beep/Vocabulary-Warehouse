@@ -89,23 +89,24 @@ const WarehouseElectrical = (() => {
       const at=s.connections.get(i);
       station(ctx,zones[s.positions[i]],pair[0],at!==undefined&&s.elapsed-at>=sparkDuration,at!==undefined);
     });
-    ctx.fillStyle='#111726';ctx.fillRect(source.x-122,source.y-49,244,98);
-    ctx.fillStyle='#a27d42';ctx.fillRect(source.x-118,source.y-45,236,90);
-    ctx.fillStyle='#3d4857';ctx.fillRect(source.x-113,source.y-40,226,80);
-    ctx.fillStyle='#1c2738';ctx.fillRect(source.x-109,source.y-36,218,72);
-    ctx.fillStyle='#2e4055';ctx.fillRect(source.x-27,source.y-23,128,32);
-    label(ctx,'POWER BOX',source.x+37,source.y-7,120);
-    const socketX=source.x-52;
-    ctx.fillStyle='#e6ddd0';ctx.fillRect(socketX-25,source.y-30,50,36);
-    ctx.fillStyle='#bab2a7';ctx.fillRect(socketX-20,source.y-26,40,28);
+    const {x,y}=source;
+    ctx.fillStyle='#111726';ctx.fillRect(x-84,y-75,168,150);
+    ctx.fillStyle='#a27d42';ctx.fillRect(x-80,y-71,160,142);
+    ctx.fillStyle='#3d4857';ctx.fillRect(x-75,y-66,150,132);
+    ctx.fillStyle='#1c2738';ctx.fillRect(x-71,y-62,142,124);
+    ctx.fillStyle='#2e4055';ctx.fillRect(x-71,y-62,142,34);
+    label(ctx,'POWER BOX',x,y-45,130);
+
+    ctx.fillStyle='#e6ddd0';ctx.fillRect(x-25,y-26,50,36);
+    ctx.fillStyle='#bab2a7';ctx.fillRect(x-20,y-22,40,28);
     ctx.fillStyle='#171923';
-    ctx.fillRect(socketX-12,source.y-20,7,12);
-    ctx.fillRect(socketX+5,source.y-20,7,12);
+    ctx.fillRect(x-12,y-16,7,12);
+    ctx.fillRect(x+5,y-16,7,12);
     for(let i=0;i<4;i++){
       ctx.fillStyle=i<s.connections.size?'#ffdd64':'#8193a1';
-      ctx.fillRect(source.x+9+i*14,source.y+22,7,5);
+      ctx.fillRect(x-24+i*14,y+56,7,5);
     }
-    if(!s.carrying&&!s.powering&&word)plug(ctx,socketX,source.y+5,word);
+    if(!s.carrying&&!s.powering&&word)plug(ctx,x,y+9,word);
   }
   return {sparkDuration,plug,draw};
 })();
