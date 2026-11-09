@@ -1,7 +1,7 @@
 const WarehouseElectrical = (() => {
   const sparkDuration = 520;
-  function label(ctx, word, x, y, width) {
-    ctx.fillStyle = '#fff5d1';
+  function label(ctx, word, x, y, width, color='#fff5d1') {
+    ctx.fillStyle = color;
     ctx.font = 'bold 25px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -55,7 +55,7 @@ const WarehouseElectrical = (() => {
     rect(-7,-27,5,3,lit?'#fff9db':'#d0d7dd');
     rect(2,-18,5,3,lit?'#d98932':'#758290');
     rect(-65,18,130,30,'#101726');
-    label(ctx,word,x,y+33,122);
+    label(ctx,word,x,y+33,122,connected?'#86ffad':'#fff5d1');
   }
   function cable(ctx, source, x, y, lane, progress) {
     const bend=source.y+lane;
