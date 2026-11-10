@@ -13,83 +13,31 @@ body:has(#game:not([hidden])) .wrap{max-width:none;width:100%;padding:4px 8px;ma
 #game>.row button{padding:5px 8px;font-size:11px;box-shadow:none}
 @media(max-height:700px){#game .stage{width:min(100%,calc((100dvh - 100px)*900/610))}#game>.row button{padding:3px 6px}}
 </style><link rel="stylesheet" href="arcade.css"></head><body><h1>▣ WORD WAREHOUSE ▣</h1><main class="wrap"><p class="muted" style="text-align:center">V0.6.2 · Viking gameplay retained · Student links require publication</p>
-<section id="menu"><div class="cols"><div class="panel"><h2>TEACHER · GAME SETTINGS</h2><label>Target language</label><select id="lang"><option value="es-ES">Spanish</option><option value="de-DE">German</option><option value="da-DK">Danish</option><option value="en-US">English</option></select><label>Category</label><select id="category"><option value="custom">Custom vocabulary</option></select><p class="muted">Move with arrow keys or WASD. Press SPACE near the central brick, then press SPACE near the correct translation box. Deliver eight words per round; positions shuffle each round. No countdown!</p><button id="testVoice">🔊 TEST VOICE</button><details><summary>HOW TO PLAY</summary><p class="muted">The stopwatch runs while you play. Wrong deliveries send the brick back to the middle and add a mistake. Press P to pause.</p></details></div>
-<div class="panel"><h2>PASTE QUIZLET WORDS</h2><p class="muted">Paste English TAB target-language pairs, one per line.</p><textarea id="words"></textarea><div class="row"><button id="swap">⇄ SWAP SIDES</button><button id="shareStudentLink">🔗 SHARE WITH STUDENTS</button><button id="play">▶ PLAY</button></div><p id="preview" class="muted"></p><p id="status" role="status"></p><div id="link"></div><button id="copyLink" type="button" hidden>📋 COPY LINK</button><p id="copyStatus" class="muted" role="status" hidden></p></div></div></section>
-<section id="student" hidden><div class="panel"><h2 id="studentTitle">Loading vocabulary…</h2><p id="studentMeta"></p><p id="studentStatus" role="status"></p><button id="studentPlay" disabled>▶ PLAY</button><details><summary>HOW TO PLAY</summary><p class="muted">Move with arrows/WASD. SPACE picks up a brick. Press SPACE again near its matching translation box.</p></details></div></section>
 <section id="game" hidden><h2 class="arcade-title">VOCABULARY WAREHOUSE</h2>
  <div class="arcade-actions"><button id="pause">PAUSE</button><button id="restart">RESTART</button><button id="back">MAIN MENU</button><button id="sound" aria-pressed="true">SOUND ON</button></div><div id="hud" class="hud"></div><p id="wordPrompt" class="word-prompt"></p><div class="stage"><canvas id="canvas" width="1560" height="610"></canvas><div id="overlay" class="overlay" hidden></div></div><p id="notice" class="notice"></p><div class="pad"><span></span><button data-key="arrowup">↑</button><span></span><button data-key="arrowleft">←</button><button id="pickup">SPACE</button><button data-key="arrowright">→</button><span></span><button data-key="arrowdown">↓</button><span></span></div></section></main>
 <script src="electrical.js"></script><script>
 'use strict';
 const $=id=>document.getElementById(id);
-const sample=[['cat','gato'],['dog','perro'],['bird','pájaro'],['fish','pez'],['horse','caballo'],['cow','vaca'],['pig','cerdo'],['sheep','oveja'],['house','casa'],['school','escuela'],['book','libro'],['water','agua'],['sun','sol'],['moon','luna'],['tree','árbol'],['flower','flor']];
-const BUILTIN_CATEGORIES={"es-ES":{"Animals":[["cat","gato"],["dog","perro"],["bird","pájaro"],["fish","pez"],["horse","caballo"],["cow","vaca"],["pig","cerdo"],["sheep","oveja"],["mouse","ratón"],["rabbit","conejo"],["duck","pato"],["chicken","pollo"]],"Food & Drink":[["bread","pan"],["water","agua"],["milk","leche"],["cheese","queso"],["apple","manzana"],["banana","plátano"],["egg","huevo"],["rice","arroz"],["potato","patata"],["carrot","zanahoria"],["salt","sal"],["sugar","azúcar"]],"Body":[["head","cabeza"],["hand","mano"],["foot","pie"],["eye","ojo"],["ear","oreja"],["nose","nariz"],["mouth","boca"],["arm","brazo"],["leg","pierna"],["finger","dedo"],["hair","pelo"],["tooth","diente"]],"School":[["school","escuela"],["book","libro"],["pencil","lápiz"],["teacher","profesor"],["student","estudiante"],["desk","escritorio"],["chair","silla"],["paper","papel"],["question","pregunta"],["answer","respuesta"],["lesson","lección"],["homework","deberes"]],"Home":[["house","casa"],["door","puerta"],["window","ventana"],["table","mesa"],["bed","cama"],["kitchen","cocina"],["bathroom","baño"],["garden","jardín"],["lamp","lámpara"],["floor","suelo"],["wall","pared"],["roof","techo"]],"Nature":[["sun","sol"],["moon","luna"],["tree","árbol"],["flower","flor"],["river","río"],["mountain","montaña"],["sea","mar"],["rain","lluvia"],["snow","nieve"],["wind","viento"],["forest","bosque"],["star","estrella"]],"Colours":[["red","rojo"],["blue","azul"],["green","verde"],["yellow","amarillo"],["black","negro"],["white","blanco"],["orange","naranja"],["purple","morado"],["pink","rosa"],["brown","marrón"],["grey","gris"],["gold","dorado"]],"Common Verbs":[["to eat","comer"],["to drink","beber"],["to read","leer"],["to write","escribir"],["to sleep","dormir"],["to run","correr"],["to swim","nadar"],["to sing","cantar"],["to dance","bailar"],["to play","jugar"],["to learn","aprender"],["to speak","hablar"]]},"de-DE":{"Animals":[["cat","Katze"],["dog","Hund"],["bird","Vogel"],["fish","Fisch"],["horse","Pferd"],["cow","Kuh"],["pig","Schwein"],["sheep","Schaf"],["mouse","Maus"],["rabbit","Kaninchen"],["duck","Ente"],["chicken","Huhn"]],"Food & Drink":[["bread","Brot"],["water","Wasser"],["milk","Milch"],["cheese","Käse"],["apple","Apfel"],["banana","Banane"],["egg","Ei"],["rice","Reis"],["potato","Kartoffel"],["carrot","Karotte"],["salt","Salz"],["sugar","Zucker"]],"Body":[["head","Kopf"],["hand","Hand"],["foot","Fuß"],["eye","Auge"],["ear","Ohr"],["nose","Nase"],["mouth","Mund"],["arm","Arm"],["leg","Bein"],["finger","Finger"],["hair","Haar"],["tooth","Zahn"]],"School":[["school","Schule"],["book","Buch"],["pencil","Bleistift"],["teacher","Lehrer"],["student","Schüler"],["desk","Schreibtisch"],["chair","Stuhl"],["paper","Papier"],["question","Frage"],["answer","Antwort"],["lesson","Unterrichtsstunde"],["homework","Hausaufgaben"]],"Home":[["house","Haus"],["door","Tür"],["window","Fenster"],["table","Tisch"],["bed","Bett"],["kitchen","Küche"],["bathroom","Badezimmer"],["garden","Garten"],["lamp","Lampe"],["floor","Boden"],["wall","Wand"],["roof","Dach"]],"Nature":[["sun","Sonne"],["moon","Mond"],["tree","Baum"],["flower","Blume"],["river","Fluss"],["mountain","Berg"],["sea","Meer"],["rain","Regen"],["snow","Schnee"],["wind","Wind"],["forest","Wald"],["star","Stern"]],"Colours":[["red","rot"],["blue","blau"],["green","grün"],["yellow","gelb"],["black","schwarz"],["white","weiß"],["orange","orange"],["purple","lila"],["pink","rosa"],["brown","braun"],["grey","grau"],["gold","golden"]],"Common Verbs":[["to eat","essen"],["to drink","trinken"],["to read","lesen"],["to write","schreiben"],["to sleep","schlafen"],["to run","laufen"],["to swim","schwimmen"],["to sing","singen"],["to dance","tanzen"],["to play","spielen"],["to learn","lernen"],["to speak","sprechen"]]},"da-DK":{"Animals":[["cat","kat"],["dog","hund"],["bird","fugl"],["fish","fisk"],["horse","hest"],["cow","ko"],["pig","gris"],["sheep","får"],["mouse","mus"],["rabbit","kanin"],["duck","and"],["chicken","kylling"]],"Food & Drink":[["bread","brød"],["water","vand"],["milk","mælk"],["cheese","ost"],["apple","æble"],["banana","banan"],["egg","æg"],["rice","ris"],["potato","kartoffel"],["carrot","gulerod"],["salt","salt"],["sugar","sukker"]],"Body":[["head","hoved"],["hand","hånd"],["foot","fod"],["eye","øje"],["ear","øre"],["nose","næse"],["mouth","mund"],["arm","arm"],["leg","ben"],["finger","finger"],["hair","hår"],["tooth","tand"]],"School":[["school","skole"],["book","bog"],["pencil","blyant"],["teacher","lærer"],["student","elev"],["desk","skrivebord"],["chair","stol"],["paper","papir"],["question","spørgsmål"],["answer","svar"],["lesson","lektion"],["homework","lektier"]],"Home":[["house","hus"],["door","dør"],["window","vindue"],["table","bord"],["bed","seng"],["kitchen","køkken"],["bathroom","badeværelse"],["garden","have"],["lamp","lampe"],["floor","gulv"],["wall","væg"],["roof","tag"]],"Nature":[["sun","sol"],["moon","måne"],["tree","træ"],["flower","blomst"],["river","flod"],["mountain","bjerg"],["sea","hav"],["rain","regn"],["snow","sne"],["wind","vind"],["forest","skov"],["star","stjerne"]],"Colours":[["red","rød"],["blue","blå"],["green","grøn"],["yellow","gul"],["black","sort"],["white","hvid"],["orange","orange"],["purple","lilla"],["pink","lyserød"],["brown","brun"],["grey","grå"],["gold","gylden"]],"Common Verbs":[["to eat","spise"],["to drink","drikke"],["to read","læse"],["to write","skrive"],["to sleep","sove"],["to run","løbe"],["to swim","svømme"],["to sing","synge"],["to dance","danse"],["to play","lege"],["to learn","lære"],["to speak","tale"]]},"en-US":{}};
-const API='https://boringteacher-vocabulary-api.mcproductionsdk.workers.dev';
 const zones=[{x:14,y:12},{x:711,y:12},{x:1408,y:12},{x:1408,y:266},{x:1408,y:520},{x:711,y:520},{x:14,y:520},{x:14,y:266}];
 const context=$('canvas').getContext('2d'),pressed=new Set();
-let active=null,frame=0,prev=0,studentSet=null,menuMode='teacher',speechToken=0,studentLoadSeq=0;
+let active=null,frame=0,prev=0,speechToken=0;
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const fmt=ms=>{let n=Math.floor(ms/100);return String(Math.floor(n/600)).padStart(2,'0')+':'+String(Math.floor(n/10)%60).padStart(2,'0')+'.'+n%10};
-function parse(){const pairs=[],bad=[];$('words').value.replace(/\r/g,'').split('\n').forEach((line,i)=>{if(!line.trim())return;const f=line.split('\t');if(f.length<2||!f[0].trim()||!f.slice(1).join('\t').trim())bad.push(i+1);else pairs.push([f[0].trim(),f.slice(1).join('\t').trim()])});return {pairs,bad}}
-function refresh(){$('copyLink').hidden=true;$('copyStatus').hidden=true;const p=parse();$('preview').textContent=p.pairs.length+' pairs detected'+(p.bad.length?' · Invalid lines: '+p.bad.join(', '):'');$('status').textContent='';$('link').replaceChildren()}
-function currentSet(){return {title:'Word Warehouse Vocabulary',language:$('lang').value,pairs:parse().pairs}}
-function valid(s,min){return s&&typeof s.title==='string'&&typeof s.language==='string'&&Array.isArray(s.pairs)&&s.pairs.length>=min&&s.pairs.every(p=>Array.isArray(p)&&p.length===2&&p.every(t=>typeof t==='string'&&t.trim()))}
 let soundOn=true;
-function speak(word,lang){if(!soundOn)return;if(!('speechSynthesis'in window)||!word)return;const token=++speechToken;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(word);u.lang=lang;u.rate=.9;const voices=speechSynthesis.getVoices();u.voice=voices.find(v=>v.lang.toLowerCase()===lang.toLowerCase())||voices.find(v=>v.lang.split('-')[0]===lang.split('-')[0])||null;if(token===speechToken)speechSynthesis.speak(u)}catch{}}
-function stopSpeech(){speechToken++;try{speechSynthesis.cancel()}catch{}}
-async function request(url,options={}){const c=new AbortController(),t=setTimeout(()=>c.abort(),12000);try{const r=await fetch(url,{...options,signal:c.signal});if(!r.ok){let detail='';try{detail=(await r.json()).error||''}catch{}throw Error(detail||('Service returned HTTP '+r.status))}return await r.json()}catch(e){if(e.name==='AbortError')throw Error('Request timed out after 12 seconds');throw e}finally{clearTimeout(t)}}
-function extract(data){const s=data?.set||data;return {title:s?.title,language:s?.language,pairs:s?.pairs||s?.vocabulary||data?.pairs||data?.vocabulary}}
-function getId(){const h=location.hash;if(!h.startsWith('#set='))return null;try{return decodeURIComponent(h.slice(5))}catch{return null}}
-function show(name){for(const id of ['menu','student','game'])$(id).hidden=id!==name}
-async function initMode(){const seq=++studentLoadSeq;stopGame();const id=getId();if(!id){studentSet=null;menuMode='teacher';show('menu');return}menuMode='student';show('student');$('studentPlay').disabled=true;$('studentStatus').textContent='Loading shared vocabulary…';try{if(!/^[A-Z0-9]{6}$/.test(id))throw Error('Invalid student link ID');const data=await request(API+'/sets/'+encodeURIComponent(id));if(seq!==studentLoadSeq)return;const s=extract(data);if(!valid(s,5))throw Error('Shared vocabulary is incomplete or invalid');studentSet=s;$('studentTitle').textContent=s.title;$('studentMeta').textContent=s.language+' · '+s.pairs.length+' words';$('studentStatus').textContent='Ready to play';$('studentPlay').disabled=false}catch(e){if(seq!==studentLoadSeq)return;studentSet=null;$('studentTitle').textContent='Vocabulary unavailable';$('studentStatus').textContent=e.message}}
-function updateCategories(){
- const chosen=$('category').value;
- $('category').replaceChildren(new Option('Custom vocabulary','custom'));
- for(const name of Object.keys(BUILTIN_CATEGORIES[$('lang').value]||{}))
-   $('category').add(new Option(name,name));
- $('category').value=Object.hasOwn(BUILTIN_CATEGORIES[$('lang').value]||{},chosen)?chosen:'custom';
-}
-function selectCategory(){
- const name=$('category').value;
- if(name==='custom')return;
- const pairs=BUILTIN_CATEGORIES[$('lang').value]?.[name];
- if(!pairs)return;
- $('words').value=pairs.map(p=>p.join('\t')).join('\n');refresh();
-}
-updateCategories();$('category').value='Animals';selectCategory();
-$('words').addEventListener('input',()=>{$('category').value='custom';refresh()});
-$('lang').onchange=()=>{updateCategories();if($('category').value!=='custom')selectCategory();else refresh()};
-$('category').onchange=selectCategory;
-$('swap').onclick=()=>{$('words').value=parse().pairs.map(p=>[p[1],p[0]].join('\t')).join('\n');refresh()};
-$('testVoice').onclick=()=>speak({'es-ES':'Hola','de-DE':'Guten Tag','da-DK':'Goddag','en-US':'Hello'}[$('lang').value],$('lang').value);
-let lastSharedUrl='';
-async function copyStudentLink(url){
- try{
-   if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
-   await navigator.clipboard.writeText(url);
-   $('copyStatus').textContent='✓ Link copied to clipboard!';
-   $('copyStatus').hidden=false;
-   return true;
- }catch(e){
-   $('copyStatus').textContent='Automatic copy unavailable in this browser. Select the link above and copy it, or try COPY LINK.';
-   $('copyStatus').hidden=false;
-   return false;
- }
-}
-$('copyLink').onclick=()=>{if(lastSharedUrl)void copyStudentLink(lastSharedUrl)};
-$('shareStudentLink').onclick=async()=>{const s=currentSet();if(parse().bad.length){$('status').textContent='Fix invalid vocabulary lines before sharing.';return}if(!valid(s,5)){$('status').textContent='At least five valid vocabulary pairs are required to share.';return}const b=$('shareStudentLink');b.disabled=true;b.textContent='SAVING…';$('copyLink').hidden=true;$('copyStatus').hidden=true;$('status').textContent='Saving vocabulary…';const snapshot=JSON.stringify(currentSet());try{const data=await request(API+'/sets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(s)});const id=data?.id||data?.setId||data?.set?.id;if(typeof id!=='string'||!/^[A-Z0-9]{6}$/.test(id))throw Error('Worker returned an invalid six-character set ID');if(snapshot!==JSON.stringify(currentSet())){$('status').textContent='Words changed during save. Share again for the latest set.';return}const url=new URL('https://boringteacher.com/word-warehouse/');url.hash='set='+encodeURIComponent(id);const a=document.createElement('a');a.href=url.href;a.textContent=url.href;a.className='link';a.target='_blank';a.rel='noopener';$('link').replaceChildren(a);lastSharedUrl=url.href;$('copyLink').hidden=false;$('status').textContent='Link ready. Saved in Cloudflare. This URL will work only AFTER Word Warehouse is published at its official address.';await copyStudentLink(url.href)}catch(e){$('status').textContent='Share failed: '+e.message}finally{b.disabled=false;b.textContent='🔗 SHARE WITH STUDENTS'}};
-$('play').onclick=()=>{const s=currentSet();if(parse().bad.length){$('status').textContent='Fix invalid vocabulary lines before playing.';return}if(!valid(s,1)){$('status').textContent='Enter at least one valid pair';return}start(s)};
-$('studentPlay').onclick=()=>{if(studentSet)start(studentSet)};
+let sessionListener, sessionSet, disposed=false;
+function speak(word,lang){if(!soundOn||!word)return;if(sessionListener){sessionListener({type:'BT_WAREHOUSE_SPEAK',text:word});return;}if(!('speechSynthesis'in window)||!word)return;const token=++speechToken;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(word);u.lang=lang;u.rate=.9;const voices=speechSynthesis.getVoices();u.voice=voices.find(v=>v.lang.toLowerCase()===lang.toLowerCase())||voices.find(v=>v.lang.split('-')[0]===lang.split('-')[0])||null;if(token===speechToken)speechSynthesis.speak(u)}catch{}}
+function stopSpeech(){if(sessionListener){sessionListener({type:'BT_WAREHOUSE_CANCEL_SPEECH'});return;}speechToken++;try{speechSynthesis.cancel()}catch{}}
 function announce(t){$('notice').textContent=t}
 function stopGame(){if(frame)cancelAnimationFrame(frame);frame=0;pressed.clear();stopSpeech();active=null}
-function start(set){stopGame();active={pairs:set.pairs.map(p=>[...p]),language:set.language,round:0,elapsed:0,roundTimes:[],mistakes:0,state:'running',x:930,y:335,carrying:false,facing:'down',walking:false,step:0};show('game');$('pause').textContent='PAUSE';$('pause').disabled=false;$('game').classList.remove('complete');$('overlay').hidden=true;newRound();prev=performance.now();frame=requestAnimationFrame(tick)}
+function start(set){stopGame();active={pairs:set.pairs.map(p=>[...p]),language:set.language,round:0,elapsed:0,roundTimes:[],mistakes:0,state:'running',x:930,y:335,carrying:false,facing:'down',walking:false,step:0};$('game').hidden=false;$('pause').textContent='PAUSE';$('pause').disabled=false;$('game').classList.remove('complete');$('overlay').hidden=true;newRound();prev=performance.now();frame=requestAnimationFrame(tick)}
 function current(){return active?.roundPairs[active.order[active.index]]}
-function sayCurrent(){const p=current();if(p)speak(p[1],active.language)}
+function sayCurrent(){const p=current();if(p&&!sessionListener)speak(p[1],active.language)}
 function newRound(){const s=active;s.roundPairs=s.pairs.slice(s.round*8,s.round*8+8);s.order=shuffle(s.roundPairs.map((_,i)=>i));s.positions=shuffle(zones.map((_,i)=>i)).slice(0,s.roundPairs.length);s.connections=new Map();s.powering=null;s.index=0;s.roundStart=s.elapsed;s.carrying=false;announce('New round! Walk back to the centre for the next plug.')}
 function next(){const s=active;s.index++;s.carrying=false;if(s.index===s.roundPairs.length){s.roundTimes.push(s.elapsed-s.roundStart);if((s.round+1)*8>=s.pairs.length){finish();return}s.round++;newRound()}else{announce('Correct! Walk back to the centre for the next plug.')}}
-function delivery(i){const s=active;if(!s.carrying)return;if(i===s.order[s.index]){const pair=current();s.carrying=false;s.connections.set(i,s.elapsed);s.powering={until:s.elapsed+WarehouseElectrical.sparkDuration};speak(pair[1],s.language);announce('Powering the bulb…')}else{s.mistakes++;s.nopeUntil=s.elapsed+850;s.carrying=false;announce('NOPE! Wrong socket. Walk back to the centre.')}}
+function delivery(i){const s=active;if(!s.carrying)return;if(i===s.order[s.index]){const pair=current();s.carrying=false;s.connections.set(i,s.elapsed);s.powering={until:s.elapsed+WarehouseElectrical.sparkDuration};speak(pair[0],s.language);announce('Powering the bulb…')}else{s.mistakes++;s.nopeUntil=s.elapsed+850;s.carrying=false;announce('NOPE! Wrong socket. Walk back to the centre.')}}
 function pickup(){const s=active;if(!s||s.state!=='running'||s.carrying)return;if(Math.hypot(s.x-780,s.y-305)<160){s.carrying=true;sayCurrent();announce('Carry the plug to the matching socket')}else announce('Move closer to the central power box')}
 function action(){const s=active;if(!s||s.state!=='running'||s.powering)return;if(!s.carrying){pickup();return;}let closest=-1,best=Infinity;for(let i=0;i<s.roundPairs.length;i++){const z=zones[s.positions[i]],cx=z.x+69,cy=z.y+36;const distance=Math.hypot(s.x-cx,s.y-cy);if(distance<best){best=distance;closest=i;}}if(closest>=0&&best<=125){delivery(closest);return;}announce('Move closer to a socket and press SPACE to deliver.');}
-function pause(){const s=active;if(!s||s.state==='finished')return;if(s.state==='running'){s.state='paused';$('pause').textContent='RESUME';stopSpeech();if(frame)cancelAnimationFrame(frame);frame=0;const box=$('overlay');box.hidden=false;box.replaceChildren();const h=document.createElement('h2');h.textContent='PAUSED';box.append(h)}else{s.state='running';$('pause').textContent='PAUSE';$('overlay').hidden=true;prev=performance.now();frame=requestAnimationFrame(tick)}}
+function pause(){const s=active;if(!s||s.state==='finished')return;if(s.state==='running'){s.state='paused';$('pause').textContent='RESUME';stopSpeech();if(frame)cancelAnimationFrame(frame);frame=0;const box=$('overlay');box.hidden=false;box.replaceChildren();const h=document.createElement('h2');h.textContent='PAUSED';box.append(h)}else{s.state='running';$('pause').textContent='PAUSE';$('overlay').hidden=true;prev=performance.now();frame=requestAnimationFrame(tick)}emitState()}
 function finish(){
  const s=active;
  s.state='finished';
@@ -112,6 +60,7 @@ function finish(){
  }
  box.replaceChildren(card);
  box.hidden=false;
+ emitState();
 }
 const rect=(x,y,w,h,c)=>{context.fillStyle=c;context.fillRect(x,y,w,h)};
 function drawText(t,x,y,color='#fff',size=16){context.fillStyle=color;context.font='bold '+size+'px monospace';context.textAlign='center';context.textBaseline='middle';context.fillText(t,x,y)}
@@ -153,5 +102,62 @@ $('hud').textContent='ROUND '+(s.round+1)+'/'+Math.ceil(s.pairs.length/8)+' · W
 function tick(now){frame=0;const s=active;if(!s||s.state!=='running')return;const dt=Math.min(80,Math.max(0,now-prev));prev=now;s.elapsed+=dt;if(s.powering&&s.elapsed>=s.powering.until){if(s.index===s.roundPairs.length-1&&s.elapsed<s.powering.until+180){render();frame=requestAnimationFrame(tick);return;}s.powering=null;next();if(s.state!=='running')return;}let dx=(pressed.has('arrowright')||pressed.has('d')?1:0)-(pressed.has('arrowleft')||pressed.has('a')?1:0),dy=(pressed.has('arrowdown')||pressed.has('s')?1:0)-(pressed.has('arrowup')||pressed.has('w')?1:0);if(dx||dy){s.walking=true;s.step=(s.step||0)+dt;if(Math.abs(dx)>Math.abs(dy))s.facing=dx>0?'right':'left';else s.facing=dy>0?'down':'up'}else{s.walking=false}s.step=s.step||0;const l=Math.hypot(dx,dy)||1;s.x=Math.max(18,Math.min(1542,s.x+dx/l*270*dt/1000));s.y=Math.max(18,Math.min(592,s.y+dy/l*270*dt/1000));render();if(active?.state==='running')frame=requestAnimationFrame(tick)}
 window.addEventListener('keydown',e=>{if($('game').hidden||['INPUT','SELECT','TEXTAREA'].includes(document.activeElement?.tagName))return;const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();pressed.add(k);if(k===' '&&!e.repeat)action();if(k==='p'&&!e.repeat)pause()});window.addEventListener('keyup',e=>pressed.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{pressed.clear();if(active?.state==='running')pause()});document.addEventListener('visibilitychange',()=>{if(document.hidden&&active?.state==='running')pause()});
 for(const b of document.querySelectorAll('[data-key]')){b.addEventListener('pointerdown',e=>{e.preventDefault();pressed.add(b.dataset.key);b.setPointerCapture(e.pointerId)});for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,()=>pressed.delete(b.dataset.key))}
-$('sound').onclick=()=>{soundOn=!soundOn;if(!soundOn)stopSpeech();$('sound').textContent=soundOn?'SOUND ON':'SOUND OFF';$('sound').setAttribute('aria-pressed',String(soundOn));};$('pickup').onclick=action;$('pause').onclick=pause;$('restart').onclick=()=>{if(active)start({pairs:active.pairs,language:active.language})};$('back').onclick=()=>{if(window.parent!==window){parent.postMessage({type:'BT_WAREHOUSE_MENU'},location.origin)}else{stopGame();initMode()}};window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent)return;if(e.data?.type==='BT_WAREHOUSE_PING'){parent.postMessage({type:'BT_WAREHOUSE_READY'},location.origin)}if(e.data?.type==='BT_WAREHOUSE_START'){const v=e.data.set;if(v&&Array.isArray(v.pairs)&&v.pairs.length>=5&&['en-US','es-ES','de-DE','da-DK','fr-FR','it-IT'].includes(v.language)){start({pairs:v.pairs.map(p=>[p[1],p[0]]),language:v.language});parent.postMessage({type:'BT_WAREHOUSE_STARTED'},location.origin)}else{parent.postMessage({type:'BT_WAREHOUSE_START_FAILED',message:'Invalid vocabulary set or language'},location.origin)}}if(e.data?.type==='BT_WAREHOUSE_MENU'){stopGame();initMode();}});window.addEventListener('hashchange',initMode);initMode();if(window.parent!==window)parent.postMessage({type:'BT_WAREHOUSE_READY'},location.origin);
-</script></body></html>
+function state(){
+ return {status:disposed?'disposed':active?.state==='finished'?'ended':active?.state??'paused',
+   soundOn, score:active?active.round*8+active.index:0,
+   lives:0, round:active?active.round+1:0, done:active?active.round*8+active.index:0};
+}
+function emitState(){sessionListener?.({type:'BT_WAREHOUSE_STATE',...state()});}
+function setSound(value){
+ if(typeof value!=='boolean')return false;
+ soundOn=value;
+ if(!soundOn)stopSpeech();
+ $('sound').textContent=soundOn?'SOUND ON':'SOUND OFF';
+ $('sound').setAttribute('aria-pressed',String(soundOn));
+ return true;
+}
+function validateSet(pairs,language){
+ return ['en-US','es-ES','de-DE','da-DK','fr-FR','it-IT'].includes(language)&&
+   Array.isArray(pairs)&&pairs.length>=5&&pairs.length<=500&&
+   pairs.every(pair=>Array.isArray(pair)&&pair.length===2&&pair.every(word=>typeof word==='string'&&word.trim()));
+}
+function adaptSet(pairs,language){return {pairs:pairs.map(([prompt,target])=>[target.trim(),prompt.trim()]),language};}
+window.BTWarehouse={
+ subscribe(listener){if(sessionListener)return false;sessionListener=listener;return true;},
+ setShellManaged(value){document.body.classList.toggle('shell-managed',value);return true;},
+ initialize(set){
+  if(!validateSet(set.pairs,set.language))return false;
+  sessionSet=adaptSet(set.pairs,set.language);
+  start(sessionSet);
+  pause();
+  render();
+  return true;
+ },
+ resume(){if(!active||active.state==='finished')return false;if(active.state==='paused')pause();return true;},
+ pause(){if(!active)return false;if(active.state==='running')pause();return true;},
+ restart(){if(!sessionSet)return false;start(sessionSet);return true;},
+ setSound,
+ resize(){if(active)render();},
+ state,
+ dispose(){disposed=true;stopGame();sessionListener=null;}
+};
+$('sound').onclick=()=>setSound(!soundOn);
+$('pickup').onclick=action;
+$('pause').onclick=pause;
+$('restart').onclick=()=>{if(active)start(active)};
+$('back').onclick=()=>parent.postMessage({type:'BT_WAREHOUSE_MENU'},location.origin);
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==parent||sessionListener||disposed)return;
+ if(event.data?.type==='BT_WAREHOUSE_PING')parent.postMessage({type:'BT_WAREHOUSE_READY'},location.origin);
+ if(event.data?.type==='BT_WAREHOUSE_START'){
+  const set=event.data.set;
+  if(!validateSet(set?.pairs,set?.language)){
+   parent.postMessage({type:'BT_WAREHOUSE_START_FAILED'},location.origin);
+   return;
+  }
+  start(adaptSet(set.pairs,set.language));
+  parent.postMessage({type:'BT_WAREHOUSE_STARTED'},location.origin);
+ }
+});
+if(parent!==window)parent.postMessage({type:'BT_WAREHOUSE_READY'},location.origin);
+</script><script type="module" src="bootstrap.mjs"></script></body></html>
