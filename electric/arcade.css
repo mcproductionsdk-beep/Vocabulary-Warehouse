@@ -39,3 +39,5 @@ body:has(#game:not([hidden])) .wrap > .muted {display:none}
 #game .results-card h2 {margin:0 0 8px;font-size:clamp(16px,3vw,23px)}
 #game .results-card p {margin:5px 0}
 #game .arcade-actions button:disabled {opacity:.55;cursor:default}
+.shell-managed #game .arcade-title,
+.shell-managed #game .arcade-actions {display:none}
