@@ -117,7 +117,7 @@ function setSound(value){
  return true;
 }
 function validateSet(pairs,language){
- return ['en-US','es-ES','de-DE','da-DK','fr-FR','it-IT'].includes(language)&&
+ return ['en-US','es-ES','de-DE','da-DK','fr-FR','it-IT','nb-NO','sv-SE'].includes(language)&&
    Array.isArray(pairs)&&pairs.length>=5&&pairs.length<=500&&
    pairs.every(pair=>Array.isArray(pair)&&pair.length===2&&pair.every(word=>typeof word==='string'&&word.trim()));
 }
